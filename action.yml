@@ -1,0 +1,37 @@
+name: Stork Upload Artifact
+description: Uploads an artifact to Stork platform
+author: Erick Zanardo
+branding:
+  icon: loader
+  color: purple
+
+inputs:
+  version:
+    description: 'The version where the artifact will be uploaded'
+    required: true
+  stork-url:
+    description: 'The URL of the Stork API'
+    default: 'https://stork.erickzanardoo.workers.dev'
+  app-id:
+    description: 'The ID of the app'
+    required: true
+  api-key:
+    description: 'The API key to authenticate with the Stork API'
+    required: true
+  platform:
+    description: 'The platform of the artifact'
+    required: true
+  artifact-path:
+    description: 'The path to the artifact'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Create Version
+      shell: bash
+      run: |
+        curl -X POST \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          --data-binary @${{ inputs.artifact-path }} \
+          ${{ inputs.stork-url }}/v1/admin/apps/${{ inputs.app-id }}/versions/${{ inputs.version }}/artifacts/platforms/${{ inputs.platform }}
