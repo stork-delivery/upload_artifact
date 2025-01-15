@@ -24,14 +24,26 @@ inputs:
   artifact-path:
     description: 'The path to the artifact'
     required: true
+  fileName:
+    description: 'The file name of the artifact'
+    required: false
 
 runs:
   using: composite
   steps:
-    - name: Create Version
+    - name: Upload Artifact
       shell: bash
       run: |
         curl -X POST \
           -H "Authorization: Bearer ${{ inputs.api-key }}" \
           --data-binary @${{ inputs.artifact-path }} \
+          ${{ inputs.stork-url }}/v1/admin/apps/${{ inputs.app-id }}/versions/${{ inputs.version }}/artifacts/platforms/${{ inputs.platform }}
+    - name: Set artifact file name
+      if: ${{ inputs.fileName }}
+      shell: bash
+      run: |
+        curl -X PATCH \
+          -H "Authorization: Bearer ${{ inputs.api-key }}" \
+          -H "Content-Type: application/json" \
+          -d "{\"fileName\": \"${{ inputs.fileName }}\"}" \
           ${{ inputs.stork-url }}/v1/admin/apps/${{ inputs.app-id }}/versions/${{ inputs.version }}/artifacts/platforms/${{ inputs.platform }}
